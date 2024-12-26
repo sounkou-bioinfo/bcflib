@@ -51,3 +51,6 @@ rsconnect/
 src/*.so
 src/*.o
 src/symbols.rds
+**.o
+**.so
+**.dll
