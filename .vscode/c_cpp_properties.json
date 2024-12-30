@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/share/R/include/**",
+                "/usr/local/lib/R/site-library/Rcpp/include/*",
+                "/usr/lib/R/site-library/vcfppR/include/*"
+            ],
+            "defines": [],
+            "cStandard": "c11",
+            "cppStandard": "gnu++11",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

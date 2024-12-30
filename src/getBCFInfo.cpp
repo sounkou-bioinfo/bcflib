@@ -32,7 +32,7 @@ DataFrame getVariantInfo(std::string vcffile, std::string region = "", std::stri
     vector<std::string> chr, ref, alt;
     while(vcf.getNextVariant(var))
     {
-           pos.push_back(var.POS());
+            pos.push_back(var.POS());
             chr.push_back(var.CHROM());
             ref.push_back(var.REF());
             alt.push_back(var.ALT());
