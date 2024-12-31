@@ -6,8 +6,12 @@ using namespace Rcpp;
 using namespace vcfpp;
 using namespace std;
 
+
+//'
+//'
+//' @export
 //[[Rcpp::export]]
-vector<int> heterozygosity(std::string vcffile, std::string region = "", std::string samples = "")
+std::vector<int> heterozygosity(std::string vcffile, std::string region = "", std::string samples = "")
 {
     BcfReader vcf(vcffile, region, samples);
     BcfRecord var(vcf.header); // construct a variant record
@@ -24,6 +28,9 @@ vector<int> heterozygosity(std::string vcffile, std::string region = "", std::st
     return hetsum;
 }
 
+//'
+//'
+//' @export
 //[[Rcpp::export]]
 DataFrame getVariantInfo(std::string vcffile, std::string region = "", std::string samples = "" ) {
     BcfReader vcf(vcffile, region, samples);

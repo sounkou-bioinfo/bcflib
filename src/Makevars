@@ -1,1 +1,28 @@
-PKG_CPPFLAGS = -I../inst/include/
+# h/t to @jimhester and @yihui for this parse block:
+# https://github.com/yihui/knitr/blob/dc5ead7bcfc0ebd2789fe99c527c7d91afb3de4a/Makefile#L1-L4
+# Note the portability change as suggested in the manual:
+# https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Writing-portable-packages
+THISDIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+PKGNAME = `sed -n "s/Package: *\([^ ]*\)/\1/p" ../DESCRIPTION`
+PKGVERS = `sed -n "s/Version: *\([^ ]*\)/\1/p" ..//DESCRIPTION`
+HTSLIB_DIR = ${THISDIR}/htslib-1.21
+PKG_CPPFLAGS = -I${HTSLIB_DIR} -I${THISDIR} -I${THISDIR}/../inst/include  -I${THISDIR}/vcfppR
+PKG_LIBS = ${HTSLIB_DIR}/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
+
+.PHONY: all clean
+
+libhts.a:
+	(cd "${HTSLIB_DIR}" && $(MAKE) libhts.a &&  cd - )
+
+install_deps: libhts.a
+
+$(SHLIB): install_deps
+
+all: $(SHLIB)
+
+clean:
+	$(RM) *.o
+	$(RM) *.dll
+	$(RM) *.so
+	$(RM) *.dylib
+	(cd $(HTSLIB_DIR) && $(MAKE) clean && cd -)

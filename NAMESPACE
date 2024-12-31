@@ -1,3 +1,1 @@
-useDynLib(bcflib, .registration=TRUE)
-importFrom(Rcpp, evalCpp)
-exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp,sourceCpp)

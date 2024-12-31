@@ -4,12 +4,13 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/src/**",
                 "/usr/share/R/include/**",
-                "/usr/local/lib/R/site-library/Rcpp/include/*",
-                "/usr/lib/R/site-library/vcfppR/include/*"
+                "/usr/local/lib/R/site-library/Rcpp/include/**"
             ],
             "defines": [],
             "cStandard": "c11",
+            "compilerPath": "/usr/bin/gcc",
             "cppStandard": "gnu++11",
             "intelliSenseMode": "linux-gcc-x64"
         }
