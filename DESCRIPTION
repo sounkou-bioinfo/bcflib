@@ -11,5 +11,6 @@ License: MIT
 SystemRequirements: GNU make
 Imports: Rcpp (>= 1.0.12), vcfppR
 LinkingTo: Rcpp
+OS_type: unix
 RoxygenNote: 7.3.2
 Encoding: UTF-8
