@@ -6,9 +6,9 @@ Date: 2024-12-26
 Author: Sounkou Mahamane Toure
 Maintainer: Sounkou Mahamane Toure <sounkoutoure@gmail.com>
 Description: This package collated some quality of life utilites for BCF/VCF file manipulations in R. 
-        It is based on the vcfpp library.
+        It is based on the vcfpp.h header library.
 License: MIT
-SystemRequirements: C++11, htslib, vcfpp
+SystemRequirements:
 Imports: Rcpp (>= 1.0.12)
 LinkingTo: Rcpp
 RoxygenNote: 7.3.2
