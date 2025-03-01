@@ -8,8 +8,8 @@ Maintainer: Sounkou Mahamane Toure <sounkoutoure@gmail.com>
 Description: This package collated some quality of life utilites for BCF/VCF file manipulations in R. 
         It is based on the vcfpp.h header library.
 License: MIT
-SystemRequirements:
-Imports: Rcpp (>= 1.0.12)
+SystemRequirements: GNU make
+Imports: Rcpp (>= 1.0.12), vcfppR
 LinkingTo: Rcpp
 RoxygenNote: 7.3.2
 Encoding: UTF-8
