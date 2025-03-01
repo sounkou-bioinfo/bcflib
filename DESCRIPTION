@@ -1,7 +1,7 @@
 Package: bcflib
 Type: Package
 Title: Utilities Function to manipulate bcf/vcf files in R
-Version: 1.0
+Version: 0.0.1
 Date: 2024-12-26
 Author: Sounkou Mahamane Toure
 Maintainer: Sounkou Mahamane Toure <sounkoutoure@gmail.com>
