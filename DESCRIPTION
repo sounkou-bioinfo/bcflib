@@ -14,5 +14,6 @@ Imports: Rcpp (>= 1.0.12),
 LinkingTo: Rcpp, vcfppR
 Suggests: testthat (>= 3.0.0)
 OS_type: unix
+Remotes: Zilong-Li/vcfppR
 RoxygenNote: 7.3.2
 Encoding: UTF-8
