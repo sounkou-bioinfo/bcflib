@@ -28,6 +28,6 @@ check2: build
 clean:
 	$(RM) -r $(PKGNAME).Rcheck/
 
-test:
+test: install
 	Rscript -e 'devtools::test()'
 

@@ -8,9 +8,9 @@ PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" ../DESCRIPTION)
 #vcfpp include directory from installed libraries for libhts.a
 VCFPPR_INCLUDES_BASE := $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))' | sed 's/\"//g')
 VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))' | sed 's/\"//g')
-HTSLIB_DIR := ${VCFPPR_INCLUDES_BASE}/htslib
-PKG_CPPFLAGS := -I${HTSLIB_DIR} 
-PKG_LIBS = ${VCFPPR_LIBDIR}/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
+HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
+PKG_CPPFLAGS := -I$(HTSLIB_DIR) 
+PKG_LIBS = $(VCFPPR_LIBDIR)/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
 CXX_STD = -std=gnu++17 
 
 .PHONY: all clean
