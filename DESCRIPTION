@@ -9,8 +9,9 @@ Description: This package collated some quality of life utilites for BCF/VCF fil
         It is based on the vcfpp.h header library.
 License: MIT
 SystemRequirements: GNU make
-Imports: Rcpp (>= 1.0.12), vcfppR
-LinkingTo: Rcpp
+Imports: Rcpp (>= 1.0.12),
+        vcfppR (>= 0.7.7)
+LinkingTo: Rcpp, vcfppR
 OS_type: unix
 RoxygenNote: 7.3.2
 Encoding: UTF-8

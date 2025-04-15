@@ -1,6 +1,6 @@
-#include <vcfpp.h>
+#include "vcfpp.h"
 #include <cmath>
-#include <Rcpp.h>
+#include "Rcpp.h"
 
 using namespace Rcpp;
 using namespace vcfpp;

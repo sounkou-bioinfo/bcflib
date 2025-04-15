@@ -1,5 +1,0 @@
-#define HTS_CC "gcc"
-#define HTS_CPPFLAGS ""
-#define HTS_CFLAGS "-g -O2 -ffile-prefix-map=/build/r-base-avGvPq/r-base-4.4.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g -Wall -O2 -fvisibility=hidden"
-#define HTS_LDFLAGS "-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -fvisibility=hidden"
-#define HTS_LIBS "-lz -lm -lbz2 -llzma -lcurl"
