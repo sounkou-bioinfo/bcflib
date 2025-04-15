@@ -54,3 +54,5 @@ src/symbols.rds
 **.o
 **.so
 **.dll
+*bcflib_*tar.gz
+bcflib.Rcheck
