@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 # h/t to @jimhester and @yihui for this parse block:
 # https://github.com/yihui/knitr/blob/dc5ead7bcfc0ebd2789fe99c527c7d91afb3de4a/Makefile#L1-L4
 # Note the portability change as suggested in the manual:
@@ -6,10 +7,20 @@ THISDIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" ../DESCRIPTION)
 PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" ../DESCRIPTION)
 #vcfpp include directory from installed libraries for libhts.a
-VCFPPR_INCLUDES_BASE := $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))' | sed 's/\"//g')
-VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))' | sed 's/\"//g')
+# vcfppR must be installed for these variables to be set correctly
+VCFPPR_INCLUDES_BASE := $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))')
+VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))')
 HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
-PKG_CPPFLAGS := -I$(HTSLIB_DIR) 
+
+# Only set PKG_CPPFLAGS and PKG_LIBS if the variables are not empty
+ifeq ($(strip $(VCFPPR_INCLUDES_BASE)),)
+  $(error "vcfppR include directory not found. Please ensure the vcfppR package is installed.")
+endif
+ifeq ($(strip $(VCFPPR_LIBDIR)),)
+  $(error "vcfppR library directory not found. Please ensure the vcfppR package is installed.")
+endif
+
+PKG_CPPFLAGS := -I$(HTSLIB_DIR)
 PKG_LIBS = $(VCFPPR_LIBDIR)/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
 CXX_STD = -std=gnu++17 
 
