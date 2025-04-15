@@ -3,13 +3,13 @@
 # Note the portability change as suggested in the manual:
 # https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Writing-portable-packages
 THISDIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-PKGNAME = $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" ../DESCRIPTION)
-PKGVERS = $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" ../DESCRIPTION)
+PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" ../DESCRIPTION)
+PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" ../DESCRIPTION)
 #vcfpp include directory from installed libraries for libhts.a
-VCFPPR_INCLUDES_BASE = $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))' | sed 's/\"//g')
-VCFPPR_LIBDIR = $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))' | sed 's/\"//g')
-HTSLIB_DIR = ${VCFPPR_INCLUDES_BASE}/htslib
-PKG_CPPFLAGS = -I${HTSLIB_DIR} 
+VCFPPR_INCLUDES_BASE := $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))' | sed 's/\"//g')
+VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))' | sed 's/\"//g')
+HTSLIB_DIR := ${VCFPPR_INCLUDES_BASE}/htslib
+PKG_CPPFLAGS := -I${HTSLIB_DIR} 
 PKG_LIBS = ${VCFPPR_LIBDIR}/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
 
 .PHONY: all clean

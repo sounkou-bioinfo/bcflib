@@ -5,13 +5,13 @@
 #'
 #' @export
 heterozygosity <- function(vcffile, region = "", samples = "") {
-    .Call('_bcflib_heterozygosity', PACKAGE = 'bcflib', vcffile, region, samples)
+    .Call(`_bcflib_heterozygosity`, vcffile, region, samples)
 }
 
 #'
 #'
 #' @export
 getVariantInfo <- function(vcffile, region = "", samples = "") {
-    .Call('_bcflib_getVariantInfo', PACKAGE = 'bcflib', vcffile, region, samples)
+    .Call(`_bcflib_getVariantInfo`, vcffile, region, samples)
 }
 
