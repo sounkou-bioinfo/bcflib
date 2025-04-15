@@ -11,6 +11,7 @@ VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR")
 HTSLIB_DIR := ${VCFPPR_INCLUDES_BASE}/htslib
 PKG_CPPFLAGS := -I${HTSLIB_DIR} 
 PKG_LIBS = ${VCFPPR_LIBDIR}/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
+CXX_STD = -std=gnu++17 
 
 .PHONY: all clean
 
