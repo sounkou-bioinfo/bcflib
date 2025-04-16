@@ -11,6 +11,9 @@ PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" ../DESCRIPTION)
 VCFPPR_INCLUDES_BASE := $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))')
 VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))')
 HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
+PKG_CPPFLAGS := -I$(HTSLIB_DIR)
+PKG_LIBS = $(VCFPPR_LIBDIR)/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
+CXX_STD = -std=gnu++17 
 
 # Only set PKG_CPPFLAGS and PKG_LIBS if the variables are not empty
 ifeq ($(strip $(VCFPPR_INCLUDES_BASE)),)
@@ -20,9 +23,10 @@ ifeq ($(strip $(VCFPPR_LIBDIR)),)
   $(error "vcfppR library directory not found. Please ensure the vcfppR package is installed.")
 endif
 
-PKG_CPPFLAGS := -I$(HTSLIB_DIR)
-PKG_LIBS = $(VCFPPR_LIBDIR)/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
-CXX_STD = -std=gnu++17 
+# check libshts.a exists
+ifeq ($(wildcard $(VCFPPR_LIBDIR)/libhts.a),)
+  $(error "libhts.a not found in vcfppR library directory. Please ensure the vcfppR package is installed.")
+endif
 
 .PHONY: all clean
 
