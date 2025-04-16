@@ -1,16 +1,16 @@
 Package: bcflib
 Type: Package
 Title: Utilities Function to manipulate bcf/vcf files in R
-Version: 0.0.1-1
-Date: to
+Version: 0.7.7-1
+Date: 2025-04-15
 Author: Sounkou Mahamane Toure
 Maintainer: Sounkou Mahamane Toure <sounkoutoure@gmail.com>
 Description: This package collated some quality of life utilites for BCF/VCF file manipulations in R. 
-        It is based on the vcfpp.h header library.
+        It is based on the vcfppR package, which provides C++ library and R methods for parsing and manipulating VCF/BCF files.
 License: MIT
 SystemRequirements: GNU make, pkg-config
 Imports: Rcpp (>= 1.0.12),
-        vcfppR (>= 0.7.7)
+        vcfppR ( = 0.7.7)
 LinkingTo: Rcpp, vcfppR
 Suggests: testthat (>= 3.0.0)
 OS_type: unix
