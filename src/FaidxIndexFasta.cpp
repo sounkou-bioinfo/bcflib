@@ -1,4 +1,4 @@
-#include <Rcpp.h>
+#include "Rcpp.h"
 #include <string>
 extern "C" {
 #include "htslib/faidx.h"
