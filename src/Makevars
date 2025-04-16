@@ -28,10 +28,11 @@ ifeq ($(wildcard $(VCFPPR_LIBDIR)/libhts.a),)
   $(error "libhts.a not found in vcfppR library directory. Please ensure the vcfppR package is installed.")
 endif
 
-LIBDEFLATE_EXISTS := $(shell pkg-config --exists libdeflate && echo YES || echo YES)
-ifeq ($(LIBDEFLATE_EXISTS),NO)
-  $(warning "libdeflate not found via pkg-config.")
-  PKG_LIBS = $(VCFPPR_LIBDIR)/libhts.a KG_LIBS = $(VCFPPR_LIBDIR)/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
+LIBDEFLATE_EXISTS := $(shell pkg-config --exists libdeflate && echo YES || echo NO)
+ifeq ($(LIBDEFLATE_EXISTS),YES)
+  PKG_LIBS += -ldeflate
+else
+  $(warning "libdeflate not found via pkg-config. Some features may not work.")
 endif
 
 .PHONY: all clean
