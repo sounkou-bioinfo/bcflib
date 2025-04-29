@@ -2,6 +2,7 @@
 
 export(faidx_fetch_region)
 export(faidx_index_fasta)
+export(getBcftoolsVersion)
 export(getVariantInfo)
 export(heterozygosity)
 importFrom(Rcpp,sourceCpp)
