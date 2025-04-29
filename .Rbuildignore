@@ -24,4 +24,5 @@ DONTCHECKMEIN.R
 ^.*\.\.Rcheck.*$
 ^Makefile$
 ^.*\.devcontainer
-^src\/bcftools.*\/test\/.*$
+^src/bcftools.*/test/.*$
+src/bcftools.*/*/*/tests/.*$
