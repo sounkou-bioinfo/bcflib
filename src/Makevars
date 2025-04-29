@@ -4,8 +4,8 @@ SHELL := /bin/bash
 # Note the portability change as suggested in the manual:
 # https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Writing-portable-packages
 THISDIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" ../DESCRIPTION)
-PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" ../DESCRIPTION)
+PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" $(THISDIR)/../DESCRIPTION)
+PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p"  $(THISDIR)/../DESCRIPTION)
 HTS_VERSION := 1.21
 #vcfpp include directory from installed libraries for libhts.a
 # vcfppR must be installed for these variables to be set correctly
@@ -18,7 +18,7 @@ BCFTOOLS_CSRC := $(wildcard $(BCFTOOLS_DIR)/*.h $(BCFTOOLS_DIR)/*.c )
 PKG_CPPFLAGS := -I$(HTSLIB_DIR) -I$(BCFTOOLS_DIR)
 # Link against static HTSlib and BCFtools librarie
 LIBHTS := $(VCFPPR_LIBDIR)/libhts.a
-PKG_LIBS = $(LIBHTS) $(BCFTOOLS_DIR)/libbcftools.a -lz -lm -lbz2 -llzma -lcurl
+PKG_LIBS := $(BCFTOOLS_DIR)/libbcftools.a $(LIBHTS) -lz -lm -lbz2 -llzma -lcurl -fPIC
 CXX_STD = -std=gnu++17
 
 # Only set PKG_CPPFLAGS and PKG_LIBS if the variables are not empty
@@ -50,7 +50,6 @@ $(SHLIB): $(BCFTOOLS_DIR)/libbcftools.a
 $(BCFTOOLS_DIR)/libbcftools.a:
 	echo "Building libbcftools.a"
 	cd $(BCFTOOLS_DIR) \
-	&& $(MAKE) clean \
 	&& $(MAKE) libbcftools.a
 
 

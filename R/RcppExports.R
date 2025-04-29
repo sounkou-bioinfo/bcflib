@@ -22,6 +22,15 @@ faidx_index_fasta <- function(fasta_path) {
     .Call(`_bcflib_faidx_index_fasta`, fasta_path)
 }
 
+#' Get BCFtools version
+#'
+#' Returns the version string of the linked BCFtools library.
+#' @return Character string of BCFtools version.
+#' @export
+getBcftoolsVersion <- function() {
+    .Call(`_bcflib_getBcftoolsVersion`)
+}
+
 #' Calculate per-sample heterozygosity from a VCF/BCF file
 #'
 #' This function computes the number of heterozygous genotypes for each sample in a given VCF/BCF file.

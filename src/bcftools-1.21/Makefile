@@ -27,6 +27,7 @@ AR       = ar
 RANLIB   = ranlib
 CPPFLAGS =
 CFLAGS   = -g -Wall -O2
+CFLAGS  += -fPIC
 LDFLAGS  =
 LIBS     =
 

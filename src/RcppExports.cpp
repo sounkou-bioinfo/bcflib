@@ -35,6 +35,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getBcftoolsVersion
+std::string getBcftoolsVersion();
+RcppExport SEXP _bcflib_getBcftoolsVersion() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(getBcftoolsVersion());
+    return rcpp_result_gen;
+END_RCPP
+}
 // heterozygosity
 std::vector<int> heterozygosity(std::string vcffile, std::string region, std::string samples);
 RcppExport SEXP _bcflib_heterozygosity(SEXP vcffileSEXP, SEXP regionSEXP, SEXP samplesSEXP) {
@@ -65,6 +75,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_bcflib_faidx_fetch_region", (DL_FUNC) &_bcflib_faidx_fetch_region, 4},
     {"_bcflib_faidx_index_fasta", (DL_FUNC) &_bcflib_faidx_index_fasta, 1},
+    {"_bcflib_getBcftoolsVersion", (DL_FUNC) &_bcflib_getBcftoolsVersion, 0},
     {"_bcflib_heterozygosity", (DL_FUNC) &_bcflib_heterozygosity, 3},
     {"_bcflib_getVariantInfo", (DL_FUNC) &_bcflib_getVariantInfo, 3},
     {NULL, NULL, 0}
