@@ -6,14 +6,20 @@ SHELL := /bin/bash
 THISDIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" ../DESCRIPTION)
 PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" ../DESCRIPTION)
+HTS_VERSION := 1.21
 #vcfpp include directory from installed libraries for libhts.a
 # vcfppR must be installed for these variables to be set correctly
 VCFPPR_INCLUDES_BASE := $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))')
 VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))')
 HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
-PKG_CPPFLAGS := -I$(HTSLIB_DIR)
-PKG_LIBS = $(VCFPPR_LIBDIR)/libhts.a -fPIC -lz -lm -lbz2 -llzma -lcurl
-CXX_STD = -std=gnu++17 
+# Use THISDIR (src directory) to reference bcftools source
+BCFTOOLS_DIR := $(THISDIR)/bcftools-$(HTS_VERSION)
+BCFTOOLS_CSRC := $(wildcard $(BCFTOOLS_DIR)/*.h $(BCFTOOLS_DIR)/*.c )
+PKG_CPPFLAGS := -I$(HTSLIB_DIR) -I$(BCFTOOLS_DIR)
+# Link against static HTSlib and BCFtools librarie
+LIBHTS := $(VCFPPR_LIBDIR)/libhts.a
+PKG_LIBS = $(LIBHTS) $(BCFTOOLS_DIR)/libbcftools.a -lz -lm -lbz2 -llzma -lcurl
+CXX_STD = -std=gnu++17
 
 # Only set PKG_CPPFLAGS and PKG_LIBS if the variables are not empty
 ifeq ($(strip $(VCFPPR_INCLUDES_BASE)),)
@@ -35,12 +41,22 @@ else
   $(warning "libdeflate not found via pkg-config. Some features may not work.")
 endif
 
-.PHONY: all clean
+.PHONY: all clean $(BCFTOOLS_DIR)/libbcftools.a
 
-all: $(SHLIB)
+all: $(BCFTOOLS_DIR)/libbcftools.a $(SHLIB)
+
+$(SHLIB): $(BCFTOOLS_DIR)/libbcftools.a
+
+$(BCFTOOLS_DIR)/libbcftools.a:
+	echo "Building libbcftools.a"
+	cd $(BCFTOOLS_DIR) \
+	&& $(MAKE) clean \
+	&& $(MAKE) libbcftools.a
+
 
 clean:
 	$(RM) *.o
 	$(RM) *.dll
 	$(RM) *.so
 	$(RM) *.dylib
+	cd $(BCFTOOLS_DIR) && $(MAKE) clean

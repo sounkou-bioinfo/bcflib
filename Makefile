@@ -3,6 +3,8 @@ PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" DESCRIPTION)
 PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" DESCRIPTION)
 PKGSRC  := $(shell basename `pwd`)
 CPP_SRCS := $(wildcard src/*.cpp src/*.c src/*.h)
+HTS_VERSION := 1.21
+BCFTOOLS_DIR := $(CURDIR)/src/bcftools-$(HTS_VERSION)
 all: rcppCompile rd check clean
 
 rcppCompile: $(CPP_SRCS)
@@ -27,6 +29,7 @@ check2: build
 
 clean:
 	$(RM) -r $(PKGNAME).Rcheck/
+	cd $(BCFTOOLS_DIR) && $(MAKE) clean
 
 test: install
 	Rscript -e 'devtools::test()'
