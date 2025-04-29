@@ -29,7 +29,7 @@ check2: build
 
 clean:
 	$(RM) -r $(PKGNAME).Rcheck/
-	cd $(BCFTOOLS_DIR) && $(MAKE) clean
+	cd $(BCFTOOLS_DIR) && $(MAKE) clean && $(RM) config.mk
 
 test: install
 	Rscript -e 'devtools::test()'
