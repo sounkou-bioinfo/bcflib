@@ -10,6 +10,33 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// ConvertSummaryStats
+std::string ConvertSummaryStats(std::string inputFile, std::string outputFile, std::string columnsPreset, std::string columnsFile, std::string fastaRef, std::string faiFile, std::string sampleName, double ns, double nc, double ne, std::string outputType, int writeIndex, int threads, int cacheSize, std::string iffyTag, std::string mismatchTag, bool recordCmdLine);
+RcppExport SEXP _bcflib_ConvertSummaryStats(SEXP inputFileSEXP, SEXP outputFileSEXP, SEXP columnsPresetSEXP, SEXP columnsFileSEXP, SEXP fastaRefSEXP, SEXP faiFileSEXP, SEXP sampleNameSEXP, SEXP nsSEXP, SEXP ncSEXP, SEXP neSEXP, SEXP outputTypeSEXP, SEXP writeIndexSEXP, SEXP threadsSEXP, SEXP cacheSizeSEXP, SEXP iffyTagSEXP, SEXP mismatchTagSEXP, SEXP recordCmdLineSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type inputFile(inputFileSEXP);
+    Rcpp::traits::input_parameter< std::string >::type outputFile(outputFileSEXP);
+    Rcpp::traits::input_parameter< std::string >::type columnsPreset(columnsPresetSEXP);
+    Rcpp::traits::input_parameter< std::string >::type columnsFile(columnsFileSEXP);
+    Rcpp::traits::input_parameter< std::string >::type fastaRef(fastaRefSEXP);
+    Rcpp::traits::input_parameter< std::string >::type faiFile(faiFileSEXP);
+    Rcpp::traits::input_parameter< std::string >::type sampleName(sampleNameSEXP);
+    Rcpp::traits::input_parameter< double >::type ns(nsSEXP);
+    Rcpp::traits::input_parameter< double >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< double >::type ne(neSEXP);
+    Rcpp::traits::input_parameter< std::string >::type outputType(outputTypeSEXP);
+    Rcpp::traits::input_parameter< int >::type writeIndex(writeIndexSEXP);
+    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< int >::type cacheSize(cacheSizeSEXP);
+    Rcpp::traits::input_parameter< std::string >::type iffyTag(iffyTagSEXP);
+    Rcpp::traits::input_parameter< std::string >::type mismatchTag(mismatchTagSEXP);
+    Rcpp::traits::input_parameter< bool >::type recordCmdLine(recordCmdLineSEXP);
+    rcpp_result_gen = Rcpp::wrap(ConvertSummaryStats(inputFile, outputFile, columnsPreset, columnsFile, fastaRef, faiFile, sampleName, ns, nc, ne, outputType, writeIndex, threads, cacheSize, iffyTag, mismatchTag, recordCmdLine));
+    return rcpp_result_gen;
+END_RCPP
+}
 // faidx_fetch_region
 SEXP faidx_fetch_region(std::string fasta_path, std::string seqname, int start, int end);
 RcppExport SEXP _bcflib_faidx_fetch_region(SEXP fasta_pathSEXP, SEXP seqnameSEXP, SEXP startSEXP, SEXP endSEXP) {
@@ -73,6 +100,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_bcflib_ConvertSummaryStats", (DL_FUNC) &_bcflib_ConvertSummaryStats, 17},
     {"_bcflib_faidx_fetch_region", (DL_FUNC) &_bcflib_faidx_fetch_region, 4},
     {"_bcflib_faidx_index_fasta", (DL_FUNC) &_bcflib_faidx_index_fasta, 1},
     {"_bcflib_getBcftoolsVersion", (DL_FUNC) &_bcflib_getBcftoolsVersion, 0},
