@@ -29,7 +29,7 @@ ifeq ($(strip $(VCFPPR_LIBDIR)),)
   $(error "vcfppR library directory not found. Please ensure the vcfppR package is installed.")
 endif
 ifeq ($(wildcard $(VCFPPR_INCLUDES_BASE)/htslib/hts.h),)
-  $(error "hts.hnot found in vcfppR library directory. Please ensure the vcfppR package is installed.")
+  $(error "hts.h not found in vcfppR library directory. Please ensure the vcfppR package is installed.")
 endif
 # check libshts.a exists
 ifeq ($(wildcard $(VCFPPR_LIBDIR)/libhts.a),)
