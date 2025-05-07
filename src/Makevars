@@ -50,7 +50,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(SHLIB)
 
-$(OBJECTS): check-hts-file $(BCFTOOLS_DIR)/libbcftools.a
+$(OBJECTS): $(BCFTOOLS_DIR)/libbcftools.a
 # Explicit dependency to ensure bcftools is built first
 $(SHLIB): $(OBJECTS)
 
@@ -68,8 +68,12 @@ check-hts-file:
 	@echo "HTS file found at $(HTS_FILE)"
 
 
+# add a phony FORCE target
+.PHONY: FORCE
+FORCE:
+
 # Prepare configuration files
-$(BCFTOOLS_CONFIG_DEST): $(BCFTOOLS_CONFIG_SRC)
+$(BCFTOOLS_CONFIG_DEST): $(BCFTOOLS_CONFIG_SRC) FORCE
 	@echo "Copying and preparing bcftools_config.mk.in..."
 	@if [ ! -f "$(BCFTOOLS_CONFIG_SRC)" ]; then \
 		echo "Error: bcftools_config.mk.in not found at $(BCFTOOLS_CONFIG_SRC)"; \

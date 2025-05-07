@@ -104,14 +104,14 @@ ifneq "$(PLUGINS_ENABLED)" "no"
 endif
 
 #Print variables using $(info)
-#$(info HTSLIB_CPPFLAGS: $(HTSLIB_CPPFLAGS))
-#$(info ALL_CPPFLAGS: $(ALL_CPPFLAGS))
+$(info HTSLIB_CPPFLAGS: $(HTSLIB_CPPFLAGS))
+$(info ALL_CPPFLAGS: $(ALL_CPPFLAGS))
 
 include config.mk
 
 #Print variables using $(info)
-#$(info HTSLIB_CPPFLAGS: $(HTSLIB_CPPFLAGS))
-#$(info ALL_CPPFLAGS: $(ALL_CPPFLAGS))
+$(info HTSLIB_CPPFLAGS: $(HTSLIB_CPPFLAGS))
+$(info ALL_CPPFLAGS: $(ALL_CPPFLAGS))
 
 PACKAGE_VERSION = 1.21
 
