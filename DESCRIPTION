@@ -14,6 +14,6 @@ SystemRequirements: GNU make, pkg-config
 Imports: Rcpp (>= 1.0.12), vcfppR (>= 0.8.0)
 LinkingTo: Rcpp, vcfppR
 OS_type: unix
-Additional_repositories: https://Zilong-Li.r-universe.dev
+Remotes: Zilong-Li/vcfppR
 RoxygenNote: 7.3.2
 Encoding: UTF-8
