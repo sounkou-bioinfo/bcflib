@@ -46,16 +46,13 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 # Define object file dependency on bcftools lib
 
-.PHONY: $(SHLIB) all config build clean help check-deps \
-		prepare-config build-bcftools set-package-flags check-hts-file
+.PHONY: $(SHLIB) all config build clean help check-deps build-bcftools set-package-flags check-hts-file
 
 all: $(SHLIB)
 
-$(OBJECTS): $(BCFTOOLS_DIR)/libbcftools.a
+$(OBJECTS): check-hts-file $(BCFTOOLS_DIR)/libbcftools.a
 # Explicit dependency to ensure bcftools is built first
-$(SHLIB): build-bcftools check-hts-file $(OBJECTS)
-
-$(BCFTOOLS_DIR)/libbcftools.a: build-bcftools
+$(SHLIB): $(OBJECTS)
 
 # Check if the HTS file exists
 check-hts-file:
@@ -72,7 +69,7 @@ check-hts-file:
 
 
 # Prepare configuration files
-prepare-config:
+$(BCFTOOLS_CONFIG_DEST): $(BCFTOOLS_CONFIG_SRC)
 	@echo "Copying and preparing bcftools_config.mk.in..."
 	@if [ ! -f "$(BCFTOOLS_CONFIG_SRC)" ]; then \
 		echo "Error: bcftools_config.mk.in not found at $(BCFTOOLS_CONFIG_SRC)"; \
@@ -91,11 +88,10 @@ prepare-config:
 	fi
 	@echo "Successfully copied and processed $(BCFTOOLS_CONFIG_SRC) to $(BCFTOOLS_CONFIG_DEST)"
 
-$(BCFTOOLS_CONFIG_DEST): prepare-config
-	@echo "Config file already exists at $(BCFTOOLS_CONFIG_DEST), skipping copy."
+
 
 # Build bcftools static library
-build-bcftools: $(BCFTOOLS_CONFIG_DEST)
+$(BCFTOOLS_DIR)/libbcftools.a: $(BCFTOOLS_CONFIG_DEST)
 	@if [ ! -d "$(BCFTOOLS_DIR)" ]; then \
 		echo "Error: bcftools directory not found: $(BCFTOOLS_DIR)"; \
 		cat $(BCFTOOLS_CONFIG_DEST); \
