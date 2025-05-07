@@ -23,6 +23,7 @@ BCFTOOLS_DIR = $(THISDIR)/bcftools-$(HTS_VERSION)
 VCFPPR_ROOT := $(shell $(R_HOME)/bin/Rscript -e 'cat(system.file(package = "vcfppR"))')
 VCFPPR_INCLUDES_BASE := $(shell $(R_HOME)/bin/Rscript -e 'cat(system.file("include", package = "vcfppR"))')
 VCFPPR_LIBDIR := $(shell $(R_HOME)/bin/Rscript -e 'cat(system.file("libs", package = "vcfppR"))')
+VCFPPR_VERSION := $(shell $(R_HOME)/bin/Rscript -e 'cat(unlist(packageVersion("vcfppR")))')
 HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
 HTS_FILE := $(VCFPPR_LIBDIR)/libhts.a
 
@@ -39,17 +40,32 @@ endif
 
 CXX_STD = CXX17
 
+# Get list of all source files that need to be compiled
+SOURCES = $(wildcard *.cpp) 
+OBJECTS = $(SOURCES:.cpp=.o)
+
+# Define object file dependency on bcftools lib
+
 .PHONY: $(SHLIB) all config build clean help check-deps \
 		prepare-config build-bcftools set-package-flags check-hts-file
 
 all: $(SHLIB)
 
-$(SHLIB): check-hts-file build-bcftools
+$(OBJECTS): $(BCFTOOLS_DIR)/libbcftools.a
+# Explicit dependency to ensure bcftools is built first
+$(SHLIB): build-bcftools check-hts-file $(OBJECTS)
+
+$(BCFTOOLS_DIR)/libbcftools.a: build-bcftools
 
 # Check if the HTS file exists
 check-hts-file:
 	@if [ ! -f "$(HTS_FILE)" ]; then \
 		echo "Error: HTS file not found at $(HTS_FILE)"; \
+		echo "Please ensure that the vcfppR package is installed correctly."; \
+		echo "Current version: $(VCFPPR_VERSION)"; \
+		echo "HTS version: $(HTS_VERSION)"; \
+		echo "HTS file path: $(HTS_FILE)"; \
+		echo "VCFFPPR directory: $(VCFPPR_ROOT)"; \
 		exit 1; \
 	fi
 	@echo "HTS file found at $(HTS_FILE)"
