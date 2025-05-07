@@ -16,7 +16,8 @@ HTS_VERSION := 1.21
 
 # Define directories
 BCFTOOLS_CONFIG_SRC := $(THISDIR)/../inst/makefiles/bcftools_config.mk.in
-BCFTOOLS_CONFIG_DEST := $(THISDIR)/bcftools-$(HTS_VERSION)/config.mk.in
+BCFTOOLS_CONFIG_DEST_IN := $(THISDIR)/bcftools-$(HTS_VERSION)/config.mk.in
+BCFTOOLS_CONFIG_DEST := $(THISDIR)/bcftools-$(HTS_VERSION)/config.mk
 BCFTOOLS_DIR = $(THISDIR)/bcftools-$(HTS_VERSION)
 
 # vcfppR paths determination - use direct R evaluation to avoid shell script errors
@@ -46,7 +47,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 # Define object file dependency on bcftools lib
 
-.PHONY: $(SHLIB) all config build clean help check-deps build-bcftools set-package-flags check-hts-file
+.PHONY: $(SHLIB) all check-hts-file
 
 all: $(SHLIB)
 
@@ -68,40 +69,39 @@ check-hts-file:
 	@echo "HTS file found at $(HTS_FILE)"
 
 
-# add a phony FORCE target
-.PHONY: FORCE
-FORCE:
-
-# Prepare configuration files
-$(BCFTOOLS_CONFIG_DEST): $(BCFTOOLS_CONFIG_SRC) FORCE
-	@echo "Copying and preparing bcftools_config.mk.in..."
+# Build bcftools static library
+$(BCFTOOLS_DIR)/libbcftools.a: check-hts-file
+	@echo "Copying and preparing $(BCFTOOLS_CONFIG_DEST_IN) from $(BCFTOOLS_CONFIG_SRC)..."
 	@if [ ! -f "$(BCFTOOLS_CONFIG_SRC)" ]; then \
-		echo "Error: bcftools_config.mk.in not found at $(BCFTOOLS_CONFIG_SRC)"; \
+		echo "Error: Template configuration file not found at $(BCFTOOLS_CONFIG_SRC)"; \
 		exit 1; \
 	fi
-	@mkdir -p $$(dirname "$(BCFTOOLS_CONFIG_DEST)")
+	@mkdir -p $$(dirname "$(BCFTOOLS_CONFIG_DEST_IN)")
 	@cat "$(BCFTOOLS_CONFIG_SRC)" | \
 		sed -e "s|@VCFPPRHTSDIR@|$(VCFPPR_INCLUDES_BASE)|g" \
 		    -e "s|@HTSLIB_CPPFLAGS@|-I$(VCFPPR_INCLUDES_BASE)|g" \
 		    -e "s|@HTSLIB@|$(HTS_FILE)|g" \
-		    -e "s|@HTSLIB_LDFLAGS@|-L$(VCFPPR_LIBDIR)|g" > "$(BCFTOOLS_CONFIG_DEST)"
-	@echo "Processing config.mk.in..."
+		    -e "s|@HTSLIB_LDFLAGS@|-L$(VCFPPR_LIBDIR)|g" > "$(BCFTOOLS_CONFIG_DEST_IN)"
+	
+	# Create config.mk directly so it's available for inclusion
+	@cat "$(BCFTOOLS_CONFIG_DEST_IN)" | \
+		sed -e '/^prefix/,/^PLUGIN_EXT/d;s/@Hsource@//;s/@Hinstall@/#/;s#@HTSDIR@#htslib#g;s/@HTSLIB_CPPFLAGS@/-I$$(HTSDIR)/g;' > "$(BCFTOOLS_CONFIG_DEST)"
+	
+	# Add explicit include path for htslib
+	@echo "HTSLIB_CPPFLAGS = -I$(VCFPPR_INCLUDES_BASE)" >> "$(BCFTOOLS_CONFIG_DEST)"
+	
+	@echo "Processing $(BCFTOOLS_CONFIG_DEST)..."
 	@if [ $$? -ne 0 ]; then \
-		echo "Failed to process and copy config.mk.in"; \
+		echo "Failed to process and copy configuration files"; \
 		exit 1; \
 	fi
-	@echo "Successfully copied and processed $(BCFTOOLS_CONFIG_SRC) to $(BCFTOOLS_CONFIG_DEST)"
-
-
-
-# Build bcftools static library
-$(BCFTOOLS_DIR)/libbcftools.a: $(BCFTOOLS_CONFIG_DEST)
+	@echo "Successfully created configuration files"
 	@if [ ! -d "$(BCFTOOLS_DIR)" ]; then \
 		echo "Error: bcftools directory not found: $(BCFTOOLS_DIR)"; \
 		cat $(BCFTOOLS_CONFIG_DEST); \
 		exit 1; \
 	fi
 	@echo "Building libbcftools.a..."
-	@echo "Using config.mk.in from $(BCFTOOLS_CONFIG_DEST)"
+	@echo "Using configuration file: $(BCFTOOLS_CONFIG_DEST)"
 	@cd "$(BCFTOOLS_DIR)" && $(MAKE) libbcftools.a
 	@echo "Successfully built libbcftools.a"
