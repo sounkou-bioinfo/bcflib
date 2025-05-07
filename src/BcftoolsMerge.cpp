@@ -15,11 +15,17 @@ extern "C" {
 }
 
 // Function to run bcftools merge from command line arguments
+#ifdef __cplusplus
+extern "C"
+#endif
 int run_bcftools_merge(int argc, char **argv) {
     return main_vcfmerge(argc, argv);
 }
 
 // Function to build and run the bcftools merge command from parameters struct
+#ifdef __cplusplus
+extern "C"
+#endif
 int run_bcftools_merge_direct(const merge_params_t* params) {
     if (!params) return -1;
 

@@ -56,10 +56,18 @@ typedef struct {
     int n_input_files;           // number of input files
 } merge_params_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Function to run bcftools merge from command line arguments
 int run_bcftools_merge(int argc, char** argv);
 
 // Function to run bcftools merge directly with parameters struct
 int run_bcftools_merge_direct(const merge_params_t* params);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // RCPP_BCFTOOLS_MERGE_H
