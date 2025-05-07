@@ -70,8 +70,6 @@ check-hts-file:
 	fi
 	@echo "HTS file found at $(HTS_FILE)"
 
-# Configuration target
-config: prepare-config
 
 # Prepare configuration files
 prepare-config:
@@ -82,10 +80,10 @@ prepare-config:
 	fi
 	@mkdir -p $$(dirname "$(BCFTOOLS_CONFIG_DEST)")
 	@cat "$(BCFTOOLS_CONFIG_SRC)" | \
-		sed -e "s|@HTSDIR@|$(VCFPPR_INCLUDES_BASE)|g" \
+		sed -e "s|@VCFPPRHTSDIR@|$(VCFPPR_INCLUDES_BASE)|g" \
 			-e "s|@HTSLIB@|$(HTS_FILE)|g" \
-			-e "s|@HTSLIB_CPPFLAGS@|-I$(VCFPPR_INCLUDES_BASE)|g" \
 			-e "s|@HTSLIB_LDFLAGS@|-L$(VCFPPR_LIBDIR)|g" > "$(BCFTOOLS_CONFIG_DEST)"
+	@echo "Processing config.mk.in..."
 	@if [ $$? -ne 0 ]; then \
 		echo "Failed to process and copy config.mk.in"; \
 		exit 1; \

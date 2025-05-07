@@ -1,5 +1,5 @@
 #!/bin/sh
-
+set -x
 # ref : h/t @Zilong-Li  https://github.com/Zilong-Li/vcfppR/blob/main/cleanup
 
 # Define directory
@@ -12,7 +12,7 @@ rm -f ${SRCDIR}/*.o ${SRCDIR}/*.so ${SRCDIR}/*.dll ${SRCDIR}/*.dylib
 
 # Clean bcftools build artifacts
 if [ -d "$BCFTOOLS_DIR" ]; then
-    cd $BCFTOOLS_DIR && make clean && cd -
+    cd $BCFTOOLS_DIR && make clean && rm -f config.mk config.mk.in && cd -
     echo "Cleaned bcftools build artifacts"
 fi
 
