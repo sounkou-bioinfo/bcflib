@@ -9,7 +9,7 @@
 
 # Define shell and common variables
 SHELL := /bin/bash
-THISDIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+THISDIR := $(CURDIR)
 PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" $(THISDIR)/../DESCRIPTION)
 PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" $(THISDIR)/../DESCRIPTION)
 HTS_VERSION := 1.21
@@ -28,7 +28,7 @@ HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
 HTS_FILE := $(VCFPPR_LIBDIR)/libhts.a
 
 # Include paths for compiling
-PKG_CPPFLAGS := -I$(HTSLIB_DIR) -I$(BCFTOOLS_DIR)
+PKG_CPPFLAGS := -I$(VCFPPR_INCLUDES_BASE) -I$(BCFTOOLS_DIR)
 
 # Setup linker flags
 PKG_LIBS := $(BCFTOOLS_DIR)/libbcftools.a $(HTS_FILE) -lz -lm -lbz2 -llzma -lcurl -fPIC
@@ -81,8 +81,9 @@ prepare-config:
 	@mkdir -p $$(dirname "$(BCFTOOLS_CONFIG_DEST)")
 	@cat "$(BCFTOOLS_CONFIG_SRC)" | \
 		sed -e "s|@VCFPPRHTSDIR@|$(VCFPPR_INCLUDES_BASE)|g" \
-			-e "s|@HTSLIB@|$(HTS_FILE)|g" \
-			-e "s|@HTSLIB_LDFLAGS@|-L$(VCFPPR_LIBDIR)|g" > "$(BCFTOOLS_CONFIG_DEST)"
+		    -e "s|@HTSLIB_CPPFLAGS@|-I$(VCFPPR_INCLUDES_BASE)|g" \
+		    -e "s|@HTSLIB@|$(HTS_FILE)|g" \
+		    -e "s|@HTSLIB_LDFLAGS@|-L$(VCFPPR_LIBDIR)|g" > "$(BCFTOOLS_CONFIG_DEST)"
 	@echo "Processing config.mk.in..."
 	@if [ $$? -ne 0 ]; then \
 		echo "Failed to process and copy config.mk.in"; \
@@ -90,12 +91,17 @@ prepare-config:
 	fi
 	@echo "Successfully copied and processed $(BCFTOOLS_CONFIG_SRC) to $(BCFTOOLS_CONFIG_DEST)"
 
+$(BCFTOOLS_CONFIG_DEST): prepare-config
+	@echo "Config file already exists at $(BCFTOOLS_CONFIG_DEST), skipping copy."
+
 # Build bcftools static library
-build-bcftools: prepare-config
+build-bcftools: $(BCFTOOLS_CONFIG_DEST)
 	@if [ ! -d "$(BCFTOOLS_DIR)" ]; then \
 		echo "Error: bcftools directory not found: $(BCFTOOLS_DIR)"; \
+		cat $(BCFTOOLS_CONFIG_DEST); \
 		exit 1; \
 	fi
 	@echo "Building libbcftools.a..."
+	@echo "Using config.mk.in from $(BCFTOOLS_CONFIG_DEST)"
 	@cd "$(BCFTOOLS_DIR)" && $(MAKE) libbcftools.a
 	@echo "Successfully built libbcftools.a"

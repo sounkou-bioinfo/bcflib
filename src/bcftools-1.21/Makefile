@@ -103,7 +103,15 @@ ifneq "$(PLUGINS_ENABLED)" "no"
 	echo '#define PLUGIN_EXT "$(PLUGIN_EXT)"' >> $@
 endif
 
+#Print variables using $(info)
+#$(info HTSLIB_CPPFLAGS: $(HTSLIB_CPPFLAGS))
+#$(info ALL_CPPFLAGS: $(ALL_CPPFLAGS))
+
 include config.mk
+
+#Print variables using $(info)
+#$(info HTSLIB_CPPFLAGS: $(HTSLIB_CPPFLAGS))
+#$(info ALL_CPPFLAGS: $(ALL_CPPFLAGS))
 
 PACKAGE_VERSION = 1.21
 

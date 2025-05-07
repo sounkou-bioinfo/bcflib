@@ -55,8 +55,6 @@ pluginpath = @bcf_pluginpath@
 PLUGIN_EXT = @PLUGIN_EXT@
 
 @Hsource@HTSDIR@ = @VCFPPRHTSDIR@
-#@Hsource@include @HTSDIR@/htslib.mk # removed becaused we are linking to vcfppR dir
-#@Hsource@include @HTSDIR@/htslib_static.mk #removed becaused we are linking to vcfppR dir
 @Hsource@HTSLIB = @HTSLIB@
 @Hsource@HTSLIB_LIB = @HTSLIB@ $(HTSLIB_static_LIBS)
 @Hsource@HTSLIB_DLL = @HTSLIB@ @HTSLIB_DLL@
@@ -64,7 +62,7 @@ PLUGIN_EXT = @PLUGIN_EXT@
 @Hsource@W32_PLUGIN_LIBS = libbcftools.a $(HTSLIB_DLL) $(ALL_LIBS)
 @Hsource@BGZIP = $(HTSDIR)/bgzip
 @Hsource@TABIX = $(HTSDIR)/tabix
-HTSLIB_CPPFLAGS = -I@VCFPPRHTSDIR@
+HTSLIB_CPPFLAGS = @HTSLIB_CPPFLAGS@
 @Hinstall@HTSLIB_LDFLAGS = @HTSLIB_LDFLAGS@
 @Hinstall@HTSLIB_LIB = @HTSLIB@
 @Hinstall@W32_PLUGIN_LIBS = libbcftools.a $(HTSLIB_LDFLAGS) $(HTSLIB_LIB) $(ALL_LIBS)
