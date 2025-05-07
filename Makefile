@@ -28,7 +28,8 @@ check2: build
 	R CMD check $(PKGNAME)_$(PKGVERS).tar.gz
 
 clean:
-	$(RM) -r $(PKGNAME).Rcheck/
+	$(RM) -r $(PKGNAME).Rcheck && \
+	cd $(CURDIR)/src && $(MAKE) clean --makefile=Makevars && \
 	cd $(BCFTOOLS_DIR) && $(MAKE) clean && $(RM) config.mk
 
 test: install

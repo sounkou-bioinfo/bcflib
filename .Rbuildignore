@@ -1,3 +1,4 @@
+^scratch/.*$
 ^CRAN-RELEASE$
 ^.*\.Rproj$
 ^\.Rproj\.user$
@@ -25,4 +26,5 @@ DONTCHECKMEIN.R
 ^Makefile$
 ^.*\.devcontainer
 ^src/bcftools.*/test/.*$
-src/bcftools.*/*/*/tests/.*$
+^src/bcftools.*/*/*/tests/.*$
+^src/.*/libbcftools.a

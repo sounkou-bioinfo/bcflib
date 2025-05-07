@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# ref : h/t @Zilong-Li  https://github.com/Zilong-Li/vcfppR/blob/main/cleanup
+
+# Define directory
+SRCDIR=$(dirname $0)"/src"
+BCFTOOLS_DIR=$(dirname $0)"/src/bcftools-1.21"
+
+# Clean up compiled files
+rm -f ${SRCDIR}/*.o ${SRCDIR}/*.so ${SRCDIR}/*.dll ${SRCDIR}/*.dylib 
+
+
+# Clean bcftools build artifacts
+if [ -d "$BCFTOOLS_DIR" ]; then
+    cd $BCFTOOLS_DIR && make clean && cd -
+    echo "Cleaned bcftools build artifacts"
+fi
+
+# Clean any config.h files
+rm -f $BCFTOOLS_DIR/config.h
+
+# Also clean any configure-generated files
+rm -f config.log config.status
+
+echo "Cleanup completed"

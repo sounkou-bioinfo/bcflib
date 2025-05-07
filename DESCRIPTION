@@ -1,18 +1,19 @@
 Package: bcflib
 Type: Package
-Title: Utilities Function to manipulate bcf/vcf files in R
-Version: 0.7.7-2
-Date: 2025-04-29
-Author: Sounkou Mahamane Toure
-Maintainer: Sounkou Mahamane Toure <sounkoutoure@gmail.com>
-Description: This package collated some quality of life utilites for BCF/VCF file manipulations in R. 
-        It is based on the vcfppR package, which provides C++ library and R methods for parsing and manipulating VCF/BCF files.
-License: MIT + file LICENSE
+Title: Utilities Function to Manipulate Bcf/Vcf Files in R
+Version: 0.8.0-0
+Date: 2025-05-06
+Authors@R: person(given = c("Sounkou", "Mahamane"),
+                 family = "Toure",
+                 role = c("aut", "cre"),
+                 email = "sounkoutoure@gmail.com")
+Description: Collated quality of life utilities for BCF/VCF file manipulations in R. 
+        Based on the vcfppR package, which provides C++ library and R methods for parsing and manipulating VCF/BCF files.
+License: MIT + file LICENSE; includes third-party code under GPL-3 (see src/bcftools-1.21/LICENSE)
 SystemRequirements: GNU make, pkg-config
-Imports: Rcpp (>= 1.0.12), vcfppR (>= 0.7.7), vcfppR(<= 0.7.7)
+Imports: Rcpp (>= 1.0.12), vcfppR (>= 0.8.0)
 LinkingTo: Rcpp, vcfppR
-Suggests: testthat (>= 3.0.0)
 OS_type: unix
-Remotes: Zilong-Li/vcfppR
+Additional_repositories: https://Zilong-Li.r-universe.dev
 RoxygenNote: 7.3.2
 Encoding: UTF-8

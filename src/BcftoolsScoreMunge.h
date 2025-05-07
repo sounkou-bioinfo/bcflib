@@ -40,6 +40,28 @@
 #define IFFY_TAG "IFFY"
 #define MISMATCH_TAG "REF_MISMATCH"
 
+// Structure to hold munge parameters
+typedef struct {
+    float ns;                 // number of samples
+    float nc;                 // number of cases
+    float ne;                 // effective sample size
+    int cache_size;           // fasta cache size in bytes
+    int record_cmd_line;      // append version and command line to header
+    int write_index;          // automatically index output files
+    int output_type;          // output file type
+    int clevel;               // compression level
+    int n_threads;            // number of worker threads
+    const char* columns_preset; // column headers from preset
+    const char* columns_fname;  // column headers from file
+    const char* ref_fname;      // reference sequence in fasta format
+    const char* fai_fname;      // reference sequence .fai index
+    const char* iffy_tag;       // FILTER annotation tag for indeterminate ref allele
+    const char* mismatch_tag;   // FILTER annotation tag for ref mismatch
+    const char* sample;         // sample name for the phenotype
+    const char* output_fname;   // output file name
+    const char* input_fname;    // input file name
+} munge_params_t;
+
 // http://github.com/MRCIEU/gwas-vcf-specification
 #define NS 0
 #define EZ 1
@@ -192,7 +214,7 @@ static const char *usage_text(void) {
            "\n";
 }
 
-int run(int argc, char **argv) {
+int run_bcftools_munge(int argc, char **argv) {
     float ns = 0.0f;
     float nc = 0.0f;
     float ne = 0.0f;
@@ -661,3 +683,358 @@ int run(int argc, char **argv) {
     if (hts_close(out_fh) < 0) error("Close failed: %s\n", out_fh->fn);
     return 0;
 }
+
+int run_bcftools_munge_direct(const munge_params_t* params) {
+    float ns = params->ns;
+    float nc = params->nc;
+    float ne = params->ne;
+    int i, idx;
+    int cache_size = params->cache_size;
+    int record_cmd_line = params->record_cmd_line;
+    int write_index = params->write_index;
+    int output_type = params->output_type;
+    int clevel = params->clevel;
+    int n_threads = params->n_threads;
+    const char *columns_preset = params->columns_preset;
+    const char *columns_fname = params->columns_fname;
+    const char *ref_fname = params->ref_fname;
+    const char *fai_fname = params->fai_fname;
+    const char *iffy_tag = params->iffy_tag;
+    const char *mismatch_tag = params->mismatch_tag;
+    const char *sample = params->sample;
+    const char *output_fname = params->output_fname;
+    const char *input_fname = params->input_fname;
+    char *index_fname;
+    faidx_t *fai;
+    htsFile *out_fh = NULL;
+
+    char wmode[8];
+    set_wmode(wmode, output_type, (char *)output_fname, clevel);
+    out_fh = hts_open(output_fname, hts_bcf_wmode(output_type));
+    if (out_fh == NULL) error("Error: cannot write to \"%s\": %s\n", output_fname, strerror(errno));
+    if (n_threads) hts_set_threads(out_fh, n_threads);
+    if (!ref_fname && !fai_fname) error("Expected the -f or --fai option\n");
+    fai = fai_load3(ref_fname ? ref_fname : fai_fname, fai_fname, NULL, FAI_CREATE);
+    if (!fai) error("Could not load the reference %s\n", ref_fname);
+    if (cache_size) fai_set_cache_size(fai, cache_size);
+    bcf_hdr_t *hdr = bcf_hdr_init("w");
+    int n = faidx_nseq(fai);
+    for (i = 0; i < n; i++) {
+        const char *seq = faidx_iseq(fai, i);
+        int len = faidx_seq_len(fai, seq);
+        bcf_hdr_printf(hdr, "##contig=<ID=%s,length=%d>", seq, len);
+    }
+    if (bcf_hdr_printf(hdr, "##FILTER=<ID=%s,Description=\"Reference allele could not be determined\">", iffy_tag) < 0)
+        error_errno("Failed to add \"%s\" FILTER header", iffy_tag);
+    int iffy_id = bcf_hdr_id2int(hdr, BCF_DT_ID, iffy_tag);
+    if (bcf_hdr_printf(hdr, "##FILTER=<ID=%s,Description=\"Reference does not match any allele\">", mismatch_tag) < 0)
+        error_errno("Failed to add \"%s\" FILTER header", mismatch_tag);
+    int mismatch_id = bcf_hdr_id2int(hdr, BCF_DT_ID, mismatch_tag);
+
+    if ((!columns_preset && !columns_fname) || (columns_preset && columns_fname))
+        error("Error: one of --columns or --columns-file should be given, not both\n%s", usage_text());
+    int mapping_n = 0;
+    mapping_t *mapping =
+        columns_preset ? mapping_preset_init(columns_preset, &mapping_n) : mapping_file_init(columns_fname, &mapping_n);
+    if (columns_preset && !mapping)
+        error("Error: preset not recognized with --columns %s\n%s", columns_preset, usage_text());
+
+    kstring_t str = {0, 0, NULL};
+    htsFile *fp = hts_open(input_fname, "r");
+    if (fp == NULL) error("Could not open %s: %s\n", input_fname, strerror(errno));
+    if (hts_getline(fp, KS_SEP_LINE, &str) <= 0) error("Error reading from file: %s\n", input_fname);
+    while (str.s[0] == '#' && strncmp(str.s, "#CHR", 4) != 0 && strncmp(str.s, "#ID", 3) != 0)
+        hts_getline(fp, KS_SEP_LINE, &str);
+
+    // remove leading # if present
+    if (str.s[0] == '#') {
+        memmove(str.s, str.s + 1, str.l - 1);
+        str.l--;
+    }
+
+    // remove _[0-9]*$ from the header to make sure FRQ_U is recognized
+    char *ptr = strchr(str.s, '_');
+    while (ptr) {
+        char *ptr2 = ptr + 1;
+        while (isdigit(*ptr2)) ptr2++;
+        if (ptr2 > ptr + 1 && (isspace(*ptr2) || *ptr2 == '\0')) {
+            memmove(ptr, ptr2, str.l - (ptr2 - str.s));
+            str.l -= ptr2 - ptr;
+            str.s[str.l] = '\0';
+        }
+        ptr = strchr(ptr + 1, '_');
+    }
+
+    // some formats are tab-delimited, some are comma-separated, and some formats (e.g. PLINK and SBayesR) are not here
+    // we make a determination based on the first header row
+    char delimiter = strchr(str.s, '\t') ? '\t' : strchr(str.s, ',') ? ',' : '\0';
+    kstring_t alleles[2] = {{0, 0, NULL}, {0, 0, NULL}};
+    kstring_t esd_str = {0, 0, NULL};
+    tsv_t *tsv = tsv_init_delimiter(str.s, delimiter);
+
+    int chr = 0;
+    int pos = 0;
+    int alt = 0;
+    int ref = 0;
+    int output[SIZE] = {0};
+    int output_nco = 0;
+    int output_esd = 0;
+    float val_nco;
+    float val[SIZE];
+    for (i = 0; i < mapping_n; i++) {
+        void *usr;
+        switch (mapping[i].hdr_num) {
+        case HDR_SNP:
+        case HDR_CHR:
+            usr = (void *)hdr;
+            break;
+        case HDR_A1:
+            usr = (void *)&alleles[1];
+            break;
+        case HDR_A2:
+        case HDR_A0:
+            usr = (void *)&alleles[0];
+            break;
+        case HDR_P:
+        case HDR_LP:
+            usr = (void *)&val[LP];
+            break;
+        case HDR_Z:
+            usr = (void *)&val[EZ];
+            break;
+        case HDR_OR:
+        case HDR_BETA:
+            usr = (void *)&val[ES];
+            break;
+        case HDR_N:
+            usr = (void *)&val[NS];
+            break;
+        case HDR_N_CAS:
+            usr = (void *)&val[NC];
+            break;
+        case HDR_N_CON:
+            usr = (void *)&val_nco;
+            break;
+        case HDR_INFO:
+            usr = (void *)&val[SI];
+            break;
+        case HDR_FRQ:
+            usr = (void *)&val[AF];
+            break;
+        case HDR_SE:
+            usr = (void *)&val[SE];
+            break;
+        case HDR_AC:
+            usr = (void *)&val[AC];
+            break;
+        case HDR_NEFF:
+        case HDR_NEFFDIV2:
+            usr = (void *)&val[NE];
+            break;
+        case HDR_HET_I2:
+            usr = (void *)&val[I2];
+            break;
+        case HDR_HET_P:
+        case HDR_HET_LP:
+            usr = (void *)&val[CQ];
+            break;
+        case HDR_DIRE:
+            usr = (void *)&esd_str;
+            break;
+        default:
+            usr = NULL;
+        }
+        int ret = tsv_register(tsv, mapping[i].hdr_str, tsv_setters[mapping[i].hdr_num], usr);
+        if (ret < 0) continue;
+        switch (mapping[i].hdr_num) {
+        case HDR_CHR:
+            chr = 1;
+            break;
+        case HDR_BP:
+            pos = 1;
+            break;
+        case HDR_A1:
+            alt = 1;
+            break;
+        case HDR_A2:
+        case HDR_A0:
+            ref = 1;
+            break;
+        case HDR_P:
+        case HDR_LP:
+            output[LP] = 1;
+            break;
+        case HDR_Z:
+            output[EZ] = 1;
+            break;
+        case HDR_OR:
+        case HDR_BETA:
+            output[ES] = 1;
+            break;
+        case HDR_N:
+            output[NS] = 1;
+            break;
+        case HDR_N_CAS:
+            output[NC] = 1;
+            break;
+        case HDR_N_CON:
+            output_nco = 1;
+            break;
+        case HDR_INFO:
+            output[SI] = 1;
+            break;
+        case HDR_FRQ:
+            output[AF] = 1;
+            break;
+        case HDR_SE:
+            output[SE] = 1;
+            break;
+        case HDR_AC:
+            output[AC] = 1;
+            break;
+        case HDR_NEFF:
+        case HDR_NEFFDIV2:
+            output[NE] = 1;
+            break;
+        case HDR_HET_I2:
+            output[I2] = 1;
+            break;
+        case HDR_HET_P:
+        case HDR_HET_LP:
+            output[CQ] = 1;
+            break;
+        case HDR_DIRE:
+            output_esd = 1;
+            break;
+        default:
+            usr = NULL;
+        }
+        if (ns) output[NS] = 1;
+        if (nc) output[NC] = 1;
+        if (output[NC] && output_nco) output[NS] = 1;
+    }
+    if (!chr) error("Could not find chromosome column in input file\n");
+    if (!pos) error("Could not find position column in input file\n");
+    if (!ref) error("Could not find reference allele column in input file\n");
+    if (!alt) error("Could not find alternate allele column in input file\n");
+    if (!output[ES]) fprintf(stderr, "Warning: could not find column to compute beta in input file\n");
+    if (!output[SE]) fprintf(stderr, "Warning: could not find standard error column in input file\n");
+    if (!output[LP]) fprintf(stderr, "Warning: could not find column to compute -log10 p-value in input file\n");
+    for (idx = 0; idx < SIZE; idx++)
+        if (output[idx]
+            && bcf_hdr_printf(hdr, "##FORMAT=<ID=%s,Number=A,Type=Float,Description=\"%s\">", id_str[idx],
+                              desc_str[idx])
+                   < 0)
+            error_errno("Failed to add \"%s\" FORMAT header", id_str[idx]);
+    if (output_esd
+        && bcf_hdr_printf(hdr, "##FORMAT=<ID=%s,Number=A,Type=String,Description=\"%s\">", id_str[SIZE], desc_str[SIZE])
+               < 0)
+        error_errno("Failed to add \"%s\" FORMAT header", id_str[SIZE]);
+    if (record_cmd_line) bcf_hdr_append_version(hdr, 0, NULL, "bcftools_munge");
+    for (idx = 0; idx < SIZE; idx++) {
+        if (output[idx]) {
+            bcf_hdr_add_sample(hdr, sample);
+            break;
+        }
+    }
+    if (bcf_hdr_write(out_fh, hdr) < 0) error("Unable to write to output VCF file\n");
+    if (init_index2(out_fh, hdr, output_fname, &index_fname, write_index) < 0)
+        error("Error: failed to initialise index for %s\n", output_fname);
+
+    bcf1_t *rec = bcf_init();
+    bcf_update_id(NULL, rec, NULL);
+    bcf_float_set_missing(rec->qual);
+    while (hts_getline(fp, KS_SEP_LINE, &str) > 0) {
+        if (str.s[0] == '#') continue; // skip comments
+        rec->rid = -1;
+        rec->pos = -1;
+        alleles[0].l = 0;
+        alleles[1].l = 0;
+        bcf_update_filter(hdr, rec, NULL, 0);
+        for (idx = 0; idx < SIZE; idx++) val[idx] = NAN;
+        esd_str.l = 0;
+        if (ns) val[NS] = ns;
+        if (nc) val[NC] = nc;
+        if (ne) val[NE] = ne;
+        if (tsv_parse_delimiter(tsv, rec, str.s, delimiter) < 0) error("Could not parse line: %s\n", str.s);
+        if (rec->rid < 0) {
+            fprintf(stderr, "Warning: could not convert record\n%s\n", str.s);
+            continue;
+        }
+        if (output[NC] && output_nco) val[NS] = val[NC] + val_nco;
+        int swap = 0;
+        if (ref_fname) { // swap ref and alt alleles if necessary
+            int len;
+            char *ref =
+                faidx_fetch_seq(fai, bcf_hdr_id2name(hdr, rec->rid), rec->pos,
+                                rec->pos + (alleles[0].l > alleles[1].l ? alleles[0].l : alleles[1].l) - 1, &len);
+            if (!ref || len < 1)
+                error("faidx_fetch_seq failed at %s:%" PRId64 " (are you using the correct reference genome?)\n",
+                      bcf_seqname(hdr, rec), rec->pos + 1);
+            int ref_match = strncasecmp(ref, alleles[0].s, alleles[0].l) == 0;
+            int alt_match = strncasecmp(ref, alleles[1].s, alleles[1].l) == 0;
+            if (!ref_match && alt_match) {
+                swap = 1;
+                val[EZ] = -val[EZ];
+                val[ES] = -val[ES];
+                val[AF] = 1.0f - val[AF];
+                val[AC] = 2.0f * val[NS] - val[AC];
+            } else if (ref_match && alt_match) {
+                bcf_update_filter(hdr, rec, &iffy_id, 1);
+            } else if (!ref_match && !alt_match) {
+                bcf_update_filter(hdr, rec, &mismatch_id, 1);
+            }
+            free(ref);
+        }
+        if (swap) {
+            kputc(',', &alleles[1]);
+            kputs(alleles[0].s, &alleles[1]);
+            bcf_update_alleles_str(hdr, rec, alleles[1].s);
+            if (output_esd) {
+                char *ptr;
+                for (ptr = esd_str.s; ptr < esd_str.s + esd_str.l; ptr++) {
+                    if (*ptr == '+')
+                        *ptr = '-';
+                    else if (*ptr == '-')
+                        *ptr = '+';
+                }
+            }
+        } else {
+            kputc(',', &alleles[0]);
+            kputs(alleles[1].s, &alleles[0]);
+            bcf_update_alleles_str(hdr, rec, alleles[0].s);
+        }
+        for (idx = 0; idx < SIZE; idx++) {
+            if (output[idx]) {
+                if (isnan(val[idx])) bcf_float_set_missing(val[idx]);
+                bcf_update_format_float(hdr, rec, id_str[idx], &val[idx], 1);
+            }
+        }
+        if (output_esd) bcf_update_format_char(hdr, rec, id_str[SIZE], esd_str.s, esd_str.l);
+        if (bcf_write(out_fh, hdr, rec) < 0) error("Unable to write to output VCF file\n");
+    }
+
+    hts_close(fp);
+    bcf_destroy(rec);
+    tsv_destroy(tsv);
+    free(alleles[0].s);
+    free(alleles[1].s);
+    free(esd_str.s);
+    free(str.s);
+    if (columns_fname) {
+        for (i = 0; i < mapping_n; i++) free(mapping[i].hdr_str);
+        free(mapping);
+    }
+    bcf_hdr_destroy(hdr);
+    fai_destroy(fai);
+    if (write_index) {
+        if (bcf_idx_save(out_fh) < 0) {
+            if (hts_close(out_fh) != 0) error("Close failed %s\n", strcmp(output_fname, "-") ? output_fname : "stdout");
+            error("Error: cannot write to index %s\n", index_fname);
+        }
+        free(index_fname);
+    }
+    if (hts_close(out_fh) < 0) error("Close failed: %s\n", out_fh->fn);
+    return 0;
+}
+

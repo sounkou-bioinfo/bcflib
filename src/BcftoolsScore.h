@@ -24,6 +24,9 @@
 
  */
 
+#ifndef BCFTOOLS_SCORE_H
+#define BCFTOOLS_SCORE_H
+
  #include "tsv2vcf.h"
 
  // see http://github.com/neurogenomics/MungeSumstats#future-enhancements
@@ -349,4 +352,5 @@
      }
      return 0;
  }
- 
+
+#endif // BCFTOOLS_SCORE_H
