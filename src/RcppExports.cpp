@@ -10,30 +10,98 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// ConvertSummaryStats
-std::string ConvertSummaryStats(std::string inputFile, std::string outputFile, std::string columnsPreset, std::string columnsFile, std::string fastaRef, std::string faiFile, std::string sampleName, double ns, double nc, double ne, std::string outputType, int writeIndex, int threads, int cacheSize, std::string iffyTag, std::string mismatchTag, bool recordCmdLine);
-RcppExport SEXP _bcflib_ConvertSummaryStats(SEXP inputFileSEXP, SEXP outputFileSEXP, SEXP columnsPresetSEXP, SEXP columnsFileSEXP, SEXP fastaRefSEXP, SEXP faiFileSEXP, SEXP sampleNameSEXP, SEXP nsSEXP, SEXP ncSEXP, SEXP neSEXP, SEXP outputTypeSEXP, SEXP writeIndexSEXP, SEXP threadsSEXP, SEXP cacheSizeSEXP, SEXP iffyTagSEXP, SEXP mismatchTagSEXP, SEXP recordCmdLineSEXP) {
+// indexVcf
+int indexVcf(std::string filename, std::string index_type, int min_shift, bool force);
+RcppExport SEXP _bcflib_indexVcf(SEXP filenameSEXP, SEXP index_typeSEXP, SEXP min_shiftSEXP, SEXP forceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type inputFile(inputFileSEXP);
-    Rcpp::traits::input_parameter< std::string >::type outputFile(outputFileSEXP);
-    Rcpp::traits::input_parameter< std::string >::type columnsPreset(columnsPresetSEXP);
-    Rcpp::traits::input_parameter< std::string >::type columnsFile(columnsFileSEXP);
-    Rcpp::traits::input_parameter< std::string >::type fastaRef(fastaRefSEXP);
-    Rcpp::traits::input_parameter< std::string >::type faiFile(faiFileSEXP);
-    Rcpp::traits::input_parameter< std::string >::type sampleName(sampleNameSEXP);
-    Rcpp::traits::input_parameter< double >::type ns(nsSEXP);
-    Rcpp::traits::input_parameter< double >::type nc(ncSEXP);
-    Rcpp::traits::input_parameter< double >::type ne(neSEXP);
-    Rcpp::traits::input_parameter< std::string >::type outputType(outputTypeSEXP);
-    Rcpp::traits::input_parameter< int >::type writeIndex(writeIndexSEXP);
-    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
-    Rcpp::traits::input_parameter< int >::type cacheSize(cacheSizeSEXP);
-    Rcpp::traits::input_parameter< std::string >::type iffyTag(iffyTagSEXP);
-    Rcpp::traits::input_parameter< std::string >::type mismatchTag(mismatchTagSEXP);
-    Rcpp::traits::input_parameter< bool >::type recordCmdLine(recordCmdLineSEXP);
-    rcpp_result_gen = Rcpp::wrap(ConvertSummaryStats(inputFile, outputFile, columnsPreset, columnsFile, fastaRef, faiFile, sampleName, ns, nc, ne, outputType, writeIndex, threads, cacheSize, iffyTag, mismatchTag, recordCmdLine));
+    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
+    Rcpp::traits::input_parameter< std::string >::type index_type(index_typeSEXP);
+    Rcpp::traits::input_parameter< int >::type min_shift(min_shiftSEXP);
+    Rcpp::traits::input_parameter< bool >::type force(forceSEXP);
+    rcpp_result_gen = Rcpp::wrap(indexVcf(filename, index_type, min_shift, force));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcftoolsMerge
+int bcftoolsMerge(Rcpp::CharacterVector args);
+RcppExport SEXP _bcflib_bcftoolsMerge(SEXP argsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type args(argsSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcftoolsMerge(args));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcftoolsMergeDirect
+int bcftoolsMergeDirect(std::string output_fname, Rcpp::CharacterVector input_files, std::string output_type, int compression_level, int n_threads, bool missing_to_ref, bool force_samples, bool header_only, std::string header_fname, std::string regions, std::string info_rules, std::string missing_rules, std::string collapse_type, bool trim_star_allele, bool trim_star_allele_all, int local_alleles, bool force_single, std::string filter_logic, std::string gvcf_fai_fname, bool record_cmd_line, bool write_index);
+RcppExport SEXP _bcflib_bcftoolsMergeDirect(SEXP output_fnameSEXP, SEXP input_filesSEXP, SEXP output_typeSEXP, SEXP compression_levelSEXP, SEXP n_threadsSEXP, SEXP missing_to_refSEXP, SEXP force_samplesSEXP, SEXP header_onlySEXP, SEXP header_fnameSEXP, SEXP regionsSEXP, SEXP info_rulesSEXP, SEXP missing_rulesSEXP, SEXP collapse_typeSEXP, SEXP trim_star_alleleSEXP, SEXP trim_star_allele_allSEXP, SEXP local_allelesSEXP, SEXP force_singleSEXP, SEXP filter_logicSEXP, SEXP gvcf_fai_fnameSEXP, SEXP record_cmd_lineSEXP, SEXP write_indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type output_fname(output_fnameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type input_files(input_filesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type output_type(output_typeSEXP);
+    Rcpp::traits::input_parameter< int >::type compression_level(compression_levelSEXP);
+    Rcpp::traits::input_parameter< int >::type n_threads(n_threadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type missing_to_ref(missing_to_refSEXP);
+    Rcpp::traits::input_parameter< bool >::type force_samples(force_samplesSEXP);
+    Rcpp::traits::input_parameter< bool >::type header_only(header_onlySEXP);
+    Rcpp::traits::input_parameter< std::string >::type header_fname(header_fnameSEXP);
+    Rcpp::traits::input_parameter< std::string >::type regions(regionsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type info_rules(info_rulesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type missing_rules(missing_rulesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type collapse_type(collapse_typeSEXP);
+    Rcpp::traits::input_parameter< bool >::type trim_star_allele(trim_star_alleleSEXP);
+    Rcpp::traits::input_parameter< bool >::type trim_star_allele_all(trim_star_allele_allSEXP);
+    Rcpp::traits::input_parameter< int >::type local_alleles(local_allelesSEXP);
+    Rcpp::traits::input_parameter< bool >::type force_single(force_singleSEXP);
+    Rcpp::traits::input_parameter< std::string >::type filter_logic(filter_logicSEXP);
+    Rcpp::traits::input_parameter< std::string >::type gvcf_fai_fname(gvcf_fai_fnameSEXP);
+    Rcpp::traits::input_parameter< bool >::type record_cmd_line(record_cmd_lineSEXP);
+    Rcpp::traits::input_parameter< bool >::type write_index(write_indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcftoolsMergeDirect(output_fname, input_files, output_type, compression_level, n_threads, missing_to_ref, force_samples, header_only, header_fname, regions, info_rules, missing_rules, collapse_type, trim_star_allele, trim_star_allele_all, local_alleles, force_single, filter_logic, gvcf_fai_fname, record_cmd_line, write_index));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcftoolsMungeImpl
+std::string bcftoolsMungeImpl(Rcpp::CharacterVector args);
+RcppExport SEXP _bcflib_bcftoolsMungeImpl(SEXP argsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type args(argsSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcftoolsMungeImpl(args));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcftoolsMungeDirectImpl
+Rcpp::IntegerVector bcftoolsMungeDirectImpl(Rcpp::Nullable<double> ns, Rcpp::Nullable<double> nc, Rcpp::Nullable<double> ne, int cache_size, bool record_cmd_line, bool write_index, std::string output_type, int clevel, int n_threads, Rcpp::Nullable<std::string> columns_preset, Rcpp::Nullable<std::string> columns_fname, Rcpp::Nullable<std::string> ref_fname, Rcpp::Nullable<std::string> fai_fname, std::string iffy_tag, std::string mismatch_tag, std::string sample, std::string output_fname, std::string input_fname);
+RcppExport SEXP _bcflib_bcftoolsMungeDirectImpl(SEXP nsSEXP, SEXP ncSEXP, SEXP neSEXP, SEXP cache_sizeSEXP, SEXP record_cmd_lineSEXP, SEXP write_indexSEXP, SEXP output_typeSEXP, SEXP clevelSEXP, SEXP n_threadsSEXP, SEXP columns_presetSEXP, SEXP columns_fnameSEXP, SEXP ref_fnameSEXP, SEXP fai_fnameSEXP, SEXP iffy_tagSEXP, SEXP mismatch_tagSEXP, SEXP sampleSEXP, SEXP output_fnameSEXP, SEXP input_fnameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::Nullable<double> >::type ns(nsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<double> >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<double> >::type ne(neSEXP);
+    Rcpp::traits::input_parameter< int >::type cache_size(cache_sizeSEXP);
+    Rcpp::traits::input_parameter< bool >::type record_cmd_line(record_cmd_lineSEXP);
+    Rcpp::traits::input_parameter< bool >::type write_index(write_indexSEXP);
+    Rcpp::traits::input_parameter< std::string >::type output_type(output_typeSEXP);
+    Rcpp::traits::input_parameter< int >::type clevel(clevelSEXP);
+    Rcpp::traits::input_parameter< int >::type n_threads(n_threadsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<std::string> >::type columns_preset(columns_presetSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<std::string> >::type columns_fname(columns_fnameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<std::string> >::type ref_fname(ref_fnameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<std::string> >::type fai_fname(fai_fnameSEXP);
+    Rcpp::traits::input_parameter< std::string >::type iffy_tag(iffy_tagSEXP);
+    Rcpp::traits::input_parameter< std::string >::type mismatch_tag(mismatch_tagSEXP);
+    Rcpp::traits::input_parameter< std::string >::type sample(sampleSEXP);
+    Rcpp::traits::input_parameter< std::string >::type output_fname(output_fnameSEXP);
+    Rcpp::traits::input_parameter< std::string >::type input_fname(input_fnameSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcftoolsMungeDirectImpl(ns, nc, ne, cache_size, record_cmd_line, write_index, output_type, clevel, n_threads, columns_preset, columns_fname, ref_fname, fai_fname, iffy_tag, mismatch_tag, sample, output_fname, input_fname));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -100,7 +168,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_bcflib_ConvertSummaryStats", (DL_FUNC) &_bcflib_ConvertSummaryStats, 17},
+    {"_bcflib_indexVcf", (DL_FUNC) &_bcflib_indexVcf, 4},
+    {"_bcflib_bcftoolsMerge", (DL_FUNC) &_bcflib_bcftoolsMerge, 1},
+    {"_bcflib_bcftoolsMergeDirect", (DL_FUNC) &_bcflib_bcftoolsMergeDirect, 21},
+    {"_bcflib_bcftoolsMungeImpl", (DL_FUNC) &_bcflib_bcftoolsMungeImpl, 1},
+    {"_bcflib_bcftoolsMungeDirectImpl", (DL_FUNC) &_bcflib_bcftoolsMungeDirectImpl, 18},
     {"_bcflib_faidx_fetch_region", (DL_FUNC) &_bcflib_faidx_fetch_region, 4},
     {"_bcflib_faidx_index_fasta", (DL_FUNC) &_bcflib_faidx_index_fasta, 1},
     {"_bcflib_getBcftoolsVersion", (DL_FUNC) &_bcflib_getBcftoolsVersion, 0},

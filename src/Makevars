@@ -1,61 +1,107 @@
+# bcflib.mk - Makefile version of the configure script for bcflib R package
+# Translates the bcflib configure script into makefile format
+# For building bcftools static library and checking dependencies
+#
+# References:
+# - Original configure script from bcflib
+# - R Extensions manual: https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Writing-portable-packages
+# - Inspired by @jimhester and @yihui: https://github.com/yihui/knitr/blob/dc5ead7bcfc0ebd2789fe99c527c7d91afb3de4a/Makefile
+
+# Define shell and common variables
 SHELL := /bin/bash
-# h/t to @jimhester and @yihui for this parse block:
-# https://github.com/yihui/knitr/blob/dc5ead7bcfc0ebd2789fe99c527c7d91afb3de4a/Makefile#L1-L4
-# Note the portability change as suggested in the manual:
-# https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Writing-portable-packages
-THISDIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+THISDIR := $(CURDIR)
 PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" $(THISDIR)/../DESCRIPTION)
-PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p"  $(THISDIR)/../DESCRIPTION)
+PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" $(THISDIR)/../DESCRIPTION)
 HTS_VERSION := 1.21
-#vcfpp include directory from installed libraries for libhts.a
-# vcfppR must be installed for these variables to be set correctly
-VCFPPR_INCLUDES_BASE := $(shell Rscript -e 'cat(system.file("include", package = "vcfppR"))')
-VCFPPR_LIBDIR := $(shell Rscript -e 'cat(system.file("libs", package = "vcfppR"))')
+
+# Define directories
+BCFTOOLS_CONFIG_SRC := $(THISDIR)/../inst/makefiles/bcftools_config.mk.in
+BCFTOOLS_CONFIG_DEST_IN := $(THISDIR)/bcftools-$(HTS_VERSION)/config.mk.in
+BCFTOOLS_CONFIG_DEST := $(THISDIR)/bcftools-$(HTS_VERSION)/config.mk
+BCFTOOLS_DIR = $(THISDIR)/bcftools-$(HTS_VERSION)
+
+# vcfppR paths determination - use direct R evaluation to avoid shell script errors
+VCFPPR_ROOT := $(shell $(R_HOME)/bin/Rscript -e 'cat(system.file(package = "vcfppR"))')
+VCFPPR_INCLUDES_BASE := $(shell $(R_HOME)/bin/Rscript -e 'cat(system.file("include", package = "vcfppR"))')
+VCFPPR_LIBDIR := $(shell $(R_HOME)/bin/Rscript -e 'cat(system.file("libs", package = "vcfppR"))')
+VCFPPR_VERSION := $(shell $(R_HOME)/bin/Rscript -e 'cat(unlist(packageVersion("vcfppR")))')
 HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
-# Use THISDIR (src directory) to reference bcftools source
-BCFTOOLS_DIR := $(THISDIR)/bcftools-$(HTS_VERSION)
-BCFTOOLS_CSRC := $(wildcard $(BCFTOOLS_DIR)/*.h $(BCFTOOLS_DIR)/*.c )
-PKG_CPPFLAGS := -I$(HTSLIB_DIR) -I$(BCFTOOLS_DIR)
-# Link against static HTSlib and BCFtools librarie
-LIBHTS := $(VCFPPR_LIBDIR)/libhts.a
-PKG_LIBS := $(BCFTOOLS_DIR)/libbcftools.a $(LIBHTS) -lz -lm -lbz2 -llzma -lcurl -fPIC
-CXX_STD = -std=gnu++17
+HTS_FILE := $(VCFPPR_LIBDIR)/libhts.a
 
-# Only set PKG_CPPFLAGS and PKG_LIBS if the variables are not empty
-ifeq ($(strip $(VCFPPR_INCLUDES_BASE)),)
-  $(error "vcfppR include directory not found. Please ensure the vcfppR package is installed.")
-endif
-ifeq ($(strip $(VCFPPR_LIBDIR)),)
-  $(error "vcfppR library directory not found. Please ensure the vcfppR package is installed.")
+# Include paths for compiling
+PKG_CPPFLAGS := -I$(VCFPPR_INCLUDES_BASE) -I$(BCFTOOLS_DIR)
+
+# Setup linker flags
+PKG_LIBS := $(BCFTOOLS_DIR)/libbcftools.a $(HTS_FILE) -lz -lm -lbz2 -llzma -lcurl -fPIC
+
+# Add libdeflate if available
+ifeq ($(shell pkg-config --exists libdeflate && echo yes),yes)
+PKG_LIBS += -ldeflate
 endif
 
-# check libshts.a exists
-ifeq ($(wildcard $(VCFPPR_LIBDIR)/libhts.a),)
-  $(error "libhts.a not found in vcfppR library directory. Please ensure the vcfppR package is installed.")
-endif
+CXX_STD = CXX17
 
-LIBDEFLATE_EXISTS := $(shell pkg-config --exists libdeflate && echo YES || echo NO)
-ifeq ($(LIBDEFLATE_EXISTS),YES)
-  PKG_LIBS += -ldeflate
-else
-  $(warning "libdeflate not found via pkg-config. Some features may not work.")
-endif
+# Get list of all source files that need to be compiled
+SOURCES = $(wildcard *.cpp) 
+OBJECTS = $(SOURCES:.cpp=.o)
 
-.PHONY: all clean $(BCFTOOLS_DIR)/libbcftools.a
+# Define object file dependency on bcftools lib
 
-all: $(BCFTOOLS_DIR)/libbcftools.a $(SHLIB)
+.PHONY: $(SHLIB) all check-hts-file
 
-$(SHLIB): $(BCFTOOLS_DIR)/libbcftools.a
+all: $(SHLIB)
 
-$(BCFTOOLS_DIR)/libbcftools.a:
-	echo "Building libbcftools.a"
-	cd $(BCFTOOLS_DIR) \
-	&& $(MAKE) libbcftools.a
+$(OBJECTS): $(BCFTOOLS_DIR)/libbcftools.a
+# Explicit dependency to ensure bcftools is built first
+$(SHLIB): $(OBJECTS)
+
+# Check if the HTS file exists
+check-hts-file:
+	@if [ ! -f "$(HTS_FILE)" ]; then \
+		echo "Error: HTS file not found at $(HTS_FILE)"; \
+		echo "Please ensure that the vcfppR package is installed correctly."; \
+		echo "Current version: $(VCFPPR_VERSION)"; \
+		echo "HTS version: $(HTS_VERSION)"; \
+		echo "HTS file path: $(HTS_FILE)"; \
+		echo "VCFFPPR directory: $(VCFPPR_ROOT)"; \
+		exit 1; \
+	fi
+	@echo "HTS file found at $(HTS_FILE)"
 
 
-clean:
-	$(RM) *.o
-	$(RM) *.dll
-	$(RM) *.so
-	$(RM) *.dylib
-	cd $(BCFTOOLS_DIR) && $(MAKE) clean
+# Build bcftools static library
+$(BCFTOOLS_DIR)/libbcftools.a: check-hts-file
+	@echo "Copying and preparing $(BCFTOOLS_CONFIG_DEST_IN) from $(BCFTOOLS_CONFIG_SRC)..."
+	@if [ ! -f "$(BCFTOOLS_CONFIG_SRC)" ]; then \
+		echo "Error: Template configuration file not found at $(BCFTOOLS_CONFIG_SRC)"; \
+		exit 1; \
+	fi
+	@mkdir -p $$(dirname "$(BCFTOOLS_CONFIG_DEST_IN)")
+	@cat "$(BCFTOOLS_CONFIG_SRC)" | \
+		sed -e "s|@VCFPPRHTSDIR@|$(VCFPPR_INCLUDES_BASE)|g" \
+		    -e "s|@HTSLIB_CPPFLAGS@|-I$(VCFPPR_INCLUDES_BASE)|g" \
+		    -e "s|@HTSLIB@|$(HTS_FILE)|g" \
+		    -e "s|@HTSLIB_LDFLAGS@|-L$(VCFPPR_LIBDIR)|g" > "$(BCFTOOLS_CONFIG_DEST_IN)"
+	
+	# Create config.mk directly so it's available for inclusion
+	@cat "$(BCFTOOLS_CONFIG_DEST_IN)" | \
+		sed -e '/^prefix/,/^PLUGIN_EXT/d;s/@Hsource@//;s/@Hinstall@/#/;s#@HTSDIR@#htslib#g;s/@HTSLIB_CPPFLAGS@/-I$$(HTSDIR)/g;' > "$(BCFTOOLS_CONFIG_DEST)"
+	
+	# Add explicit include path for htslib
+	@echo "HTSLIB_CPPFLAGS = -I$(VCFPPR_INCLUDES_BASE)" >> "$(BCFTOOLS_CONFIG_DEST)"
+	
+	@echo "Processing $(BCFTOOLS_CONFIG_DEST)..."
+	@if [ $$? -ne 0 ]; then \
+		echo "Failed to process and copy configuration files"; \
+		exit 1; \
+	fi
+	@echo "Successfully created configuration files"
+	@if [ ! -d "$(BCFTOOLS_DIR)" ]; then \
+		echo "Error: bcftools directory not found: $(BCFTOOLS_DIR)"; \
+		cat $(BCFTOOLS_CONFIG_DEST); \
+		exit 1; \
+	fi
+	@echo "Building libbcftools.a..."
+	@echo "Using configuration file: $(BCFTOOLS_CONFIG_DEST)"
+	@cd "$(BCFTOOLS_DIR)" && $(MAKE) libbcftools.a
+	@echo "Successfully built libbcftools.a"
