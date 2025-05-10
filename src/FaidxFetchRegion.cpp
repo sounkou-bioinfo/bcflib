@@ -12,7 +12,7 @@ extern "C" {
 //' @return Character vector of the fetched sequence
 //' @export
 // [[Rcpp::export]]
-SEXP faidx_fetch_region(std::string fasta_path, std::string seqname, int start, int end) {
+SEXP faidxFetchRegion(std::string fasta_path, std::string seqname, int start, int end) {
     faidx_t* fai = fai_load(fasta_path.c_str());
     if (!fai) {
         Rcpp::stop("Failed to load FASTA index for " + fasta_path);

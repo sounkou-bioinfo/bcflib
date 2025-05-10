@@ -29,7 +29,7 @@ HTSLIB_DIR := $(VCFPPR_INCLUDES_BASE)/htslib
 HTS_FILE := $(VCFPPR_LIBDIR)/libhts.a
 
 # Include paths for compiling
-PKG_CPPFLAGS := -I$(VCFPPR_INCLUDES_BASE) -I$(BCFTOOLS_DIR)
+PKG_CPPFLAGS := -DR_NO_REMAP -I$(VCFPPR_INCLUDES_BASE) -I$(BCFTOOLS_DIR)
 
 # Setup linker flags
 PKG_LIBS := $(BCFTOOLS_DIR)/libbcftools.a $(HTS_FILE) -lz -lm -lbz2 -llzma -lcurl -fPIC

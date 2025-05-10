@@ -10,6 +10,94 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// bcf_get_n_samples
+int bcf_get_n_samples(const std::string& filename);
+RcppExport SEXP _bcflib_bcf_get_n_samples(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type filename(filenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_n_samples(filename));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcf_get_sample_names
+Rcpp::StringVector bcf_get_sample_names(const std::string& filename);
+RcppExport SEXP _bcflib_bcf_get_sample_names(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type filename(filenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_sample_names(filename));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcf_get_altrep_sample_names
+Rcpp::StringVector bcf_get_altrep_sample_names(SEXP x);
+RcppExport SEXP _bcflib_bcf_get_altrep_sample_names(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_altrep_sample_names(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcf_get_altrep_n_samples
+int bcf_get_altrep_n_samples(SEXP x);
+RcppExport SEXP _bcflib_bcf_get_altrep_n_samples(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_altrep_n_samples(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcf_get_n_samples
+int bcf_get_n_samples(const std::string& filename);
+RcppExport SEXP _bcflib_bcf_get_n_samples(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type filename(filenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_n_samples(filename));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcf_get_sample_names
+Rcpp::StringVector bcf_get_sample_names(const std::string& filename);
+RcppExport SEXP _bcflib_bcf_get_sample_names(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type filename(filenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_sample_names(filename));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcf_get_altrep_sample_names
+Rcpp::StringVector bcf_get_altrep_sample_names(SEXP x);
+RcppExport SEXP _bcflib_bcf_get_altrep_sample_names(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_altrep_sample_names(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bcf_get_altrep_n_samples
+int bcf_get_altrep_n_samples(SEXP x);
+RcppExport SEXP _bcflib_bcf_get_altrep_n_samples(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(bcf_get_altrep_n_samples(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // indexVcf
 int indexVcf(std::string filename, std::string index_type, int min_shift, bool force);
 RcppExport SEXP _bcflib_indexVcf(SEXP filenameSEXP, SEXP index_typeSEXP, SEXP min_shiftSEXP, SEXP forceSEXP) {
@@ -105,9 +193,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// faidx_fetch_region
-SEXP faidx_fetch_region(std::string fasta_path, std::string seqname, int start, int end);
-RcppExport SEXP _bcflib_faidx_fetch_region(SEXP fasta_pathSEXP, SEXP seqnameSEXP, SEXP startSEXP, SEXP endSEXP) {
+// faidxFetchRegion
+SEXP faidxFetchRegion(std::string fasta_path, std::string seqname, int start, int end);
+RcppExport SEXP _bcflib_faidxFetchRegion(SEXP fasta_pathSEXP, SEXP seqnameSEXP, SEXP startSEXP, SEXP endSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -115,7 +203,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type seqname(seqnameSEXP);
     Rcpp::traits::input_parameter< int >::type start(startSEXP);
     Rcpp::traits::input_parameter< int >::type end(endSEXP);
-    rcpp_result_gen = Rcpp::wrap(faidx_fetch_region(fasta_path, seqname, start, end));
+    rcpp_result_gen = Rcpp::wrap(faidxFetchRegion(fasta_path, seqname, start, end));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -168,12 +256,20 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_bcflib_bcf_get_n_samples", (DL_FUNC) &_bcflib_bcf_get_n_samples, 1},
+    {"_bcflib_bcf_get_sample_names", (DL_FUNC) &_bcflib_bcf_get_sample_names, 1},
+    {"_bcflib_bcf_get_altrep_sample_names", (DL_FUNC) &_bcflib_bcf_get_altrep_sample_names, 1},
+    {"_bcflib_bcf_get_altrep_n_samples", (DL_FUNC) &_bcflib_bcf_get_altrep_n_samples, 1},
+    {"_bcflib_bcf_get_n_samples", (DL_FUNC) &_bcflib_bcf_get_n_samples, 1},
+    {"_bcflib_bcf_get_sample_names", (DL_FUNC) &_bcflib_bcf_get_sample_names, 1},
+    {"_bcflib_bcf_get_altrep_sample_names", (DL_FUNC) &_bcflib_bcf_get_altrep_sample_names, 1},
+    {"_bcflib_bcf_get_altrep_n_samples", (DL_FUNC) &_bcflib_bcf_get_altrep_n_samples, 1},
     {"_bcflib_indexVcf", (DL_FUNC) &_bcflib_indexVcf, 4},
     {"_bcflib_bcftoolsMerge", (DL_FUNC) &_bcflib_bcftoolsMerge, 1},
     {"_bcflib_bcftoolsMergeDirect", (DL_FUNC) &_bcflib_bcftoolsMergeDirect, 21},
     {"_bcflib_bcftoolsMungeImpl", (DL_FUNC) &_bcflib_bcftoolsMungeImpl, 1},
     {"_bcflib_bcftoolsMungeDirectImpl", (DL_FUNC) &_bcflib_bcftoolsMungeDirectImpl, 18},
-    {"_bcflib_faidx_fetch_region", (DL_FUNC) &_bcflib_faidx_fetch_region, 4},
+    {"_bcflib_faidxFetchRegion", (DL_FUNC) &_bcflib_faidxFetchRegion, 4},
     {"_bcflib_faidx_index_fasta", (DL_FUNC) &_bcflib_faidx_index_fasta, 1},
     {"_bcflib_getBcftoolsVersion", (DL_FUNC) &_bcflib_getBcftoolsVersion, 0},
     {"_bcflib_heterozygosity", (DL_FUNC) &_bcflib_heterozygosity, 3},
@@ -181,7 +277,9 @@ static const R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
+void init_bcf_altrep(DllInfo* dll);
 RcppExport void R_init_bcflib(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
+    init_bcf_altrep(dll);
 }
